@@ -75,16 +75,34 @@ def _launch_vs(path: str):
 
 def run_vs_task_in_terminal(project_path: str, task_name: str):
     try:
-        project_dir = os.path.dirname(project_path)
+        # For Chatbot, the package.json is in ChatBot/ChatBot/ subdirectory
+        if "ChatBot" in project_path:
+            # Extract the base path and go to ChatBot/ChatBot/ subdirectory
+            base_dir = os.path.dirname(project_path)  # Gets to ChatBot folder
+            package_dir = os.path.join(base_dir, "ChatBot")  # Goes to ChatBot/ChatBot/
+        else:
+            package_dir = os.path.dirname(project_path)
+        
         print(f"Starting '{task_name}' in terminal window...")
+        print(f"Looking for package.json in: {package_dir}")
         
         # Create a batch command that runs the npm script
         batch_content = f"""@echo off
 title {task_name}
-cd /d "{project_dir}"
+cd /d "{package_dir}"
 echo Starting {task_name}...
+echo Working directory: {package_dir}
 echo Press Ctrl+C to stop
 echo.
+
+REM Check if package.json exists
+if not exist package.json (
+    echo ERROR: package.json not found in {package_dir}
+    echo Please check the path and try again.
+    pause
+    exit /b 1
+)
+
 npm run {task_name}
 echo.
 echo Task completed. Press any key to close.
