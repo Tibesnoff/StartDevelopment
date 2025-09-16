@@ -78,14 +78,14 @@ def run_vs_task_in_terminal(project_path: str, task_name: str):
         project_dir = os.path.dirname(project_path)
         print(f"Starting '{task_name}' in terminal window...")
         
-        # Create a batch command that runs the task
+        # Create a batch command that runs the npm script
         batch_content = f"""@echo off
 title {task_name}
 cd /d "{project_dir}"
 echo Starting {task_name}...
 echo Press Ctrl+C to stop
 echo.
-dotnet run --project "{project_path}" -- {task_name}
+npm run {task_name}
 echo.
 echo Task completed. Press any key to close.
 pause >nul
