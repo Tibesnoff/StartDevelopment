@@ -74,27 +74,33 @@ def _launch_vs(path: str):
     os.startfile(path)
 
 def _launch_vscode(path: str):
-    print(f"Attempting to open VS Code at: {path}")
-    try:
-        subprocess.run(["code", path], check=True, shell=True)
-        print("VS Code launched successfully")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("'code' command not found, trying 'code.cmd'...")
+    print(f"Opening VS Code at: {path}")
+    
+    if not os.path.exists(path):
+        print(f"ERROR: Path does not exist: {path}")
+        return
+    
+    vscode_commands = [
+        ["code", path],
+        ["code.cmd", path],
+        ["C:\\Program Files\\Microsoft VS Code\\Code.exe", path],
+        ["C:\\Program Files (x86)\\Microsoft VS Code\\Code.exe", path]
+    ]
+    
+    user_profile = os.environ.get('USERPROFILE', '')
+    if user_profile:
+        vscode_commands.append([os.path.join(user_profile, "AppData", "Local", "Programs", "Microsoft VS Code", "Code.exe"), path])
+    
+    for cmd in vscode_commands:
         try:
-            subprocess.run(["code.cmd", path], check=True, shell=True)
-            print("VS Code launched successfully with code.cmd")
+            subprocess.run(cmd, check=True, shell=True)
+            print("VS Code launched successfully")
+            return
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("'code.cmd' not found, trying direct path...")
-            try:
-                import os
-                user_profile = os.environ.get('USERPROFILE', '')
-                vscode_path = os.path.join(user_profile, "AppData", "Local", "Programs", "Microsoft VS Code", "Code.exe")
-                subprocess.run([vscode_path, path], check=True)
-                print("VS Code launched successfully with direct path")
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                print(f"Could not launch VS Code. Please ensure it's installed and in your PATH.")
-                print(f"Falling back to opening folder: {path}")
-                os.startfile(path)
+            continue
+    
+    print("Could not launch VS Code. Opening folder in Windows Explorer instead.")
+    os.startfile(path)
 
 EDITOR_LAUNCHERS = {
     VISUAL_STUDIO: _launch_vs,

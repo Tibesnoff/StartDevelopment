@@ -1,4 +1,5 @@
 
+import sys
 from project_ops import run_selection_manager
 from cli_utils import show_menu_with_navigation
 
@@ -16,6 +17,10 @@ def main():
     
     choice = show_menu_with_navigation("Project Launcher", menu_options)
     run_selection_manager(choice)
+    
+    print("\nPress any key to exit...")
+    input()
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
