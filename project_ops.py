@@ -73,9 +73,7 @@ def toggle_chatbot_local_bot_registration(using_emulator: bool):
 def _launch_vs(path: str): 
     os.startfile(path)
 
-def _launch_vscode(path: str):
-    print(f"Opening VS Code at: {path}")
-    
+def _launch_vscode(path: str):    
     if not os.path.exists(path):
         print(f"ERROR: Path does not exist: {path}")
         return
@@ -94,12 +92,10 @@ def _launch_vscode(path: str):
     for cmd in vscode_commands:
         try:
             subprocess.run(cmd, check=True, shell=True)
-            print("VS Code launched successfully")
             return
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
     
-    print("Could not launch VS Code. Opening folder in Windows Explorer instead.")
     os.startfile(path)
 
 EDITOR_LAUNCHERS = {
