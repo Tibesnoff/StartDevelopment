@@ -1,12 +1,6 @@
 import os
 
-
 def flip_filename(filepath: str, new_name: str = None) -> str:
-    """
-    Renames the file at filepath to a new name in the same directory.
-    If new_name is not provided, prepends or removes an underscore.
-    Returns the new file path.
-    """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
 
@@ -14,7 +8,6 @@ def flip_filename(filepath: str, new_name: str = None) -> str:
     if new_name:
         new_base = new_name
     else:
-        # Toggle underscore
         if base_name.startswith("_"):
             new_base = base_name.lstrip("_")
         else:

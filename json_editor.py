@@ -2,12 +2,7 @@ import json
 from typing import Any
 
 def edit_json_key(file_path: str, dotted_key: str, value: Any) -> bool:
-    """
-    Updates a nested key in a JSON file by replacing only the line containing
-    the final key, preserving original whitespace/formatting.
-    """
     try:
-        # Verify key exists by walking the parsed JSON
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -23,16 +18,15 @@ def edit_json_key(file_path: str, dotted_key: str, value: Any) -> bool:
             print(f"Final key '{keys[-1]}' not found in {dotted_key}.")
             return False
 
-        # Replace only the last key in the raw file
         last_key = keys[-1]
-        new_value = json.dumps(value)  # ensures proper JSON encoding
+        new_value = json.dumps(value)
 
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
         replaced = False
         for i, line in enumerate(lines):
-            if f'"{last_key}"' in line:  # crude but effective for most JSONs
+            if f'"{last_key}"' in line:
                 prefix, _, _ = line.partition(":")
                 lines[i] = f'{prefix}: {new_value},\n' if line.strip().endswith(",") else f'{prefix}: {new_value}\n'
                 replaced = True

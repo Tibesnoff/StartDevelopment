@@ -59,7 +59,6 @@ allowed_projects: dict[AllowedProject, ProjectInfo] = {
 
 # === Helpers ===
 def toggle_chatbot_local_bot_registration(using_emulator: bool):
-    """Ensure only the correct chatbot registration file exists."""
     try:
         keep = CHATBOT_LOCAL_BOT_REGISTRATION_UNDERSCORE if using_emulator else CHATBOT_LOCAL_BOT_REGISTRATION
         remove = CHATBOT_LOCAL_BOT_REGISTRATION if using_emulator else CHATBOT_LOCAL_BOT_REGISTRATION_UNDERSCORE
@@ -71,7 +70,6 @@ def toggle_chatbot_local_bot_registration(using_emulator: bool):
     except Exception as e:
         print(f"Error flipping emulator file: {e}")
 
-# Editor launchers
 def _launch_vs(path: str): os.startfile(path)
 def _launch_vscode(path: str):
     try:
@@ -87,27 +85,24 @@ EDITOR_LAUNCHERS = {
 def open_project(project_name: AllowedProject):
     project = allowed_projects.get(project_name)
     if not project:
-        print(f"Project '{project_name}' is not recognized.")
+        print(f"❌ Project '{project_name}' is not recognized.")
         return
 
-    print(f"Opening '{project['name']}' in {project['editor']} at {project['path']}")
+    print(f"📂 Opening '{project['name']}' in {project['editor']}")
     try:
         EDITOR_LAUNCHERS[project["editor"]](project["path"])
     except Exception as e:
-        print(f"Failed to open project: {e}")
+        print(f"❌ Failed to open project: {e}")
 
-# === Reset ===
 def reset_projects():
+    print("🔄 Resetting all project configurations...")
     edit_json_key(JSON_PATHS["Switchboard"], "Api.Persistence.BaseUrl", HOME_SB_API_URL)
     edit_json_key(JSON_PATHS["Switchboard"], "Api.DirectLine.DirectLineSecret", DEV_DIRECTLINE_SECRET)
     edit_json_key(JSON_PATHS["Chatbot"], "Api.SwitchboardApi.BaseUrl", DEV_SB_API_URL)
     edit_json_key(JSON_PATHS["Chatstats"], "SwitchboardApi.BaseUrl", DEV_SB_API_URL)
-
     toggle_chatbot_local_bot_registration(using_emulator=False)
+    print("✅ All projects reset to default (dev) configuration.")
 
-    print("All projects reset to default (dev) configuration.")
-
-# === Project Runners ===
 def run_chatbot(should_run_directline: bool, is_full_project: bool, using_emulator: bool):
     toggle_chatbot_local_bot_registration(using_emulator)
     url = LOC_SB_API_URL if is_full_project else DEV_SB_API_URL
@@ -132,27 +127,29 @@ def run_switchboard_api():
 
 # === Selection Manager ===
 SELECTION_ACTIONS = {
-    "Full Project": lambda: (
+    "F": lambda: (
         run_chatstats(True),
         run_switchboard(True, True),
         run_switchboard_api(),
         run_chatbot(True, True, False)
     ),
-    "Chatbot + Switchboard": lambda: (
+    "CS": lambda: (
         run_chatbot(True, False, False),
         run_switchboard(False, True)
     ),
-    "Chatbot + Emulator": lambda: run_chatbot(False, False, True),
-    "Chatbot": lambda: run_chatbot(False, False, False),
-    "Switchboard": lambda: run_switchboard(False, False),
-    "Chatstats": lambda: run_chatstats(False),
-    "SwitchboardAPI": run_switchboard_api,
-    "Reset": reset_projects,
+    "CE": lambda: run_chatbot(False, False, True),
+    "C": lambda: run_chatbot(False, False, False),
+    "S": lambda: run_switchboard(False, False),
+    "ST": lambda: run_chatstats(False),
+    "API": run_switchboard_api,
+    "R": reset_projects,
 }
 
 def run_selection_manager(selection: str):
     action = SELECTION_ACTIONS.get(selection)
     if action:
+        print(f"\n🚀 Launching {selection} configuration...")
         action()
+        print("✅ Configuration complete!\n")
     else:
-        print(f"Unknown selection: {selection}")
+        print(f"❌ Unknown selection: {selection}")
