@@ -76,18 +76,18 @@ def _launch_vs(path: str):
 def run_vs_task_in_terminal(project_path: str, task_name: str):
     try:
         project_dir = os.path.dirname(project_path)
-        print(f"Starting task '{task_name}' in new terminal window...")
+        print(f"Starting '{task_name}' in terminal window...")
         
-        # Create a batch command that will run only the task using MSBuild
+        # Create a batch command that runs the task
         batch_content = f"""@echo off
-title {task_name} - {os.path.basename(project_path)}
+title {task_name}
 cd /d "{project_dir}"
-echo Starting task: {task_name}
+echo Starting {task_name}...
 echo Press Ctrl+C to stop
 echo.
-msbuild "{project_path}" /t:{task_name}
+dotnet run --project "{project_path}" -- {task_name}
 echo.
-echo Task completed. Press any key to close this window.
+echo Task completed. Press any key to close.
 pause >nul
 """
         
@@ -99,7 +99,7 @@ pause >nul
         
         # Run the batch file in a new terminal window
         subprocess.Popen(['cmd', '/c', 'start', batch_file], shell=True)
-        print(f"Task '{task_name}' started in new terminal window")
+        print(f"Task '{task_name}' started in terminal window")
         return True
         
     except Exception as e:
