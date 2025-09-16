@@ -11,18 +11,11 @@ def main():
         ("S", "Switchboard Only"),
         ("ST", "Chatstats Only"),
         ("API", "Switchboard API Only"),
-        ("R", "Reset All Configs"),
-        ("Q", "Quit")
+        ("R", "Reset All Configs")
     ]
     
-    while True:
-        choice = show_menu_with_navigation("Project Launcher", menu_options)
-        
-        if choice == "Q":
-            print("Goodbye! 👋")
-            break
-            
-        run_selection_manager(choice)
+    choice = show_menu_with_navigation("Project Launcher", menu_options)
+    run_selection_manager(choice)
 
 if __name__ == "__main__":
     main()

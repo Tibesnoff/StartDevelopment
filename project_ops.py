@@ -70,12 +70,31 @@ def toggle_chatbot_local_bot_registration(using_emulator: bool):
     except Exception as e:
         print(f"Error flipping emulator file: {e}")
 
-def _launch_vs(path: str): os.startfile(path)
+def _launch_vs(path: str): 
+    os.startfile(path)
+
 def _launch_vscode(path: str):
+    print(f"Attempting to open VS Code at: {path}")
     try:
-        subprocess.Popen(["code", path])
-    except Exception:
-        os.startfile(path)
+        subprocess.run(["code", path], check=True, shell=True)
+        print("VS Code launched successfully")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("'code' command not found, trying 'code.cmd'...")
+        try:
+            subprocess.run(["code.cmd", path], check=True, shell=True)
+            print("VS Code launched successfully with code.cmd")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print("'code.cmd' not found, trying direct path...")
+            try:
+                import os
+                user_profile = os.environ.get('USERPROFILE', '')
+                vscode_path = os.path.join(user_profile, "AppData", "Local", "Programs", "Microsoft VS Code", "Code.exe")
+                subprocess.run([vscode_path, path], check=True)
+                print("VS Code launched successfully with direct path")
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                print(f"Could not launch VS Code. Please ensure it's installed and in your PATH.")
+                print(f"Falling back to opening folder: {path}")
+                os.startfile(path)
 
 EDITOR_LAUNCHERS = {
     VISUAL_STUDIO: _launch_vs,
@@ -85,23 +104,23 @@ EDITOR_LAUNCHERS = {
 def open_project(project_name: AllowedProject):
     project = allowed_projects.get(project_name)
     if not project:
-        print(f"❌ Project '{project_name}' is not recognized.")
+        print(f"Project '{project_name}' is not recognized.")
         return
 
-    print(f"📂 Opening '{project['name']}' in {project['editor']}")
+    print(f"Opening '{project['name']}' in {project['editor']}")
     try:
         EDITOR_LAUNCHERS[project["editor"]](project["path"])
     except Exception as e:
-        print(f"❌ Failed to open project: {e}")
+        print(f"Failed to open project: {e}")
 
 def reset_projects():
-    print("🔄 Resetting all project configurations...")
+    print("Resetting all project configurations...")
     edit_json_key(JSON_PATHS["Switchboard"], "Api.Persistence.BaseUrl", HOME_SB_API_URL)
     edit_json_key(JSON_PATHS["Switchboard"], "Api.DirectLine.DirectLineSecret", DEV_DIRECTLINE_SECRET)
     edit_json_key(JSON_PATHS["Chatbot"], "Api.SwitchboardApi.BaseUrl", DEV_SB_API_URL)
     edit_json_key(JSON_PATHS["Chatstats"], "SwitchboardApi.BaseUrl", DEV_SB_API_URL)
     toggle_chatbot_local_bot_registration(using_emulator=False)
-    print("✅ All projects reset to default (dev) configuration.")
+    print("All projects reset to default (dev) configuration.")
 
 def run_chatbot(should_run_directline: bool, is_full_project: bool, using_emulator: bool):
     toggle_chatbot_local_bot_registration(using_emulator)
@@ -148,8 +167,8 @@ SELECTION_ACTIONS = {
 def run_selection_manager(selection: str):
     action = SELECTION_ACTIONS.get(selection)
     if action:
-        print(f"\n🚀 Launching {selection} configuration...")
+        print(f"\nLaunching {selection} configuration...")
         action()
-        print("✅ Configuration complete!\n")
+        print("Configuration complete!")
     else:
-        print(f"❌ Unknown selection: {selection}")
+        print(f"Unknown selection: {selection}")

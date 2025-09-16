@@ -13,19 +13,19 @@ def show_menu_with_navigation(title: str, options: list[tuple[str, str]]) -> str
     
     while True:
         clear_screen()
-        print(f"🚀 {title}")
-        print("=" * (len(title) + 4))
-        print("Use ↑↓ arrows to navigate, Enter to select, Q to quit")
+        print(f"{title}")
+        print("=" * len(title))
+        print("Use ↑↓ arrows to navigate, Enter to select")
         print()
         
         for i, (key, description) in enumerate(options):
             if i == selected_index:
-                print(f"  ▶ {description} ◀")
+                print(f"  > {description} <")
             else:
                 print(f"    {description}")
         
         print()
-        print("Press Enter to select, Q to quit")
+        print("Press Enter to select")
         
         key = get_key()
         
@@ -35,8 +35,6 @@ def show_menu_with_navigation(title: str, options: list[tuple[str, str]]) -> str
             selected_index += 1
         elif key == 'enter':
             return options[selected_index][0]
-        elif key == 'q':
-            return 'Q'
 
 def get_key():
     while True:
