@@ -73,39 +73,6 @@ def toggle_chatbot_local_bot_registration(using_emulator: bool):
 def _launch_vs(path: str): 
     os.startfile(path)
 
-def run_vs_task_in_window(project_path: str, task_name: str):
-    try:
-        project_dir = os.path.dirname(project_path)
-        print(f"Starting VS task '{task_name}' in separate window...")
-        
-        # Create a batch command that will keep the window open
-        batch_content = f"""@echo off
-title {task_name} - {os.path.basename(project_path)}
-cd /d "{project_dir}"
-echo Starting {task_name}...
-echo Press Ctrl+C to stop
-echo.
-dotnet run --project "{project_path}" -- {task_name}
-echo.
-echo Task completed. Press any key to close this window.
-pause >nul
-"""
-        
-        # Write batch file to temp location
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.bat', delete=False) as f:
-            f.write(batch_content)
-            batch_file = f.name
-        
-        # Run the batch file in a new window
-        subprocess.Popen(['cmd', '/c', 'start', batch_file], shell=True)
-        print(f"Task '{task_name}' started in new window")
-        return True
-        
-    except Exception as e:
-        print(f"Error starting task '{task_name}': {e}")
-        return False
-
 def _launch_vscode(path: str):    
     if not os.path.exists(path):
         print(f"ERROR: Path does not exist: {path}")
@@ -161,10 +128,6 @@ def run_chatbot(should_run_directline: bool, is_full_project: bool, using_emulat
     toggle_chatbot_local_bot_registration(using_emulator)
     url = LOC_SB_API_URL if is_full_project else DEV_SB_API_URL
     edit_json_key(JSON_PATHS["Chatbot"], "Api.SwitchboardApi.BaseUrl", url)
-    
-    if should_run_directline:
-        run_vs_task_in_window(PATHS["Chatbot"], "start-static-ngrok-tunnel")
-    
     open_project("Chatbot")
 
 def run_switchboard(is_full_project: bool, has_chatbot: bool):
